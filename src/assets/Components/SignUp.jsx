@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import jdbIcon from "../Images/jdb-icon.png";
+import { Link } from "react-router-dom";
 import IntlTelInput from "intl-tel-input/reactWithUtils";
 import "intl-tel-input/styles";
+import signupPic from "../Images/signupPic.jpg";
+import jdbIcon from "../Images/jdb-icon.png";
 
 function SignUp() {
-  const [currentSection, setCurrentSection] = useState(1);
   const [maxDate, setMaxDate] = useState("");
+  const [currentSection, setCurrentSection] = useState(1);
+  const nextSection = () => setCurrentSection((prev) => Math.min(prev + 1, 3));
+  const prevSection = () => setCurrentSection((prev) => Math.max(prev - 1, 0));
   const [state, setState] = useState({
     firstname: "",
     lastname: "",
@@ -25,13 +29,15 @@ function SignUp() {
     }));
   };
 
-  const nextSection = () => {
-    setCurrentSection((prev) => Math.min(prev + 1, 3));
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
   };
 
-  const prevSection = () => {
-    setCurrentSection((prev) => Math.max(prev - 1, 0));
-  };
+  // const onSubmit = () => {
+
+  // }
 
   useEffect(() => {
     const today = new Date();
@@ -41,17 +47,19 @@ function SignUp() {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
+      return `${day}-${month}-${year}`;
     };
 
     setMaxDate(formatDate(maxDate));
   }, []);
 
   return (
-    <div className="SignUp flex h-[100vh] w-[100vw] flex-col items-center justify-center">
-      <div className="flex h-[100vh] w-[100vw] items-center overflow-clip [box-shadow:0px_0px_10px_2px_#00000050] sm:h-[90vh] sm:w-[90vw] sm:rounded-[10px]">
-        <div className="flex h-[100%] w-[50%] bg-green-900"></div>
-        <div className="flex h-[100%] w-[50%] flex-col items-center justify-center gap-[30px]">
+    <div className="SignUp flex h-[100vh] w-[100vw] flex-col items-center justify-center bg-green-900">
+      <div className="flex h-[100vh] w-[100vw] flex-col items-center overflow-clip bg-white [box-shadow:0px_0px_10px_2px_#00000050] sm:h-[90vh] sm:w-[90vw] sm:flex-row sm:rounded-[10px]">
+        <div className="flex h-[20vh] sm:h-[100%] sm:w-[50%]">
+          <img src={signupPic} alt="" className="object-cover" />
+        </div>
+        <div className="flex w-[90%] grow flex-col items-center justify-center gap-[30px] sm:h-[100%] sm:w-[50%]">
           <img src={jdbIcon} alt="" />
           <form className="relative flex w-[80%] max-w-[300px] flex-col gap-[20px]">
             <fieldset
@@ -65,27 +73,34 @@ function SignUp() {
                 placeholder="First Name"
                 value={state.firstname}
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
               />
+
               <input
                 name="lastname"
                 type="text"
                 placeholder="Last Name"
                 value={state.lastname}
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
               />
+
               <input
                 name="email"
                 type="email"
                 placeholder="Email Address"
                 value={state.email}
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
               />
             </fieldset>
+
             <fieldset
               className={`flex w-full flex-col items-center gap-[10px] ${
                 currentSection === 2 ? "active block" : "hidden"
               }`}
             >
+              {/* check npm intl-tel-input for more explanation */}
               <IntlTelInput
                 initOptions={{
                   initialCountry: "auto",
@@ -101,39 +116,29 @@ function SignUp() {
                 }}
               />
 
-              <div className="relative flex w-full justify-evenly p-[10px_10px] [border:solid_2px_#14532d80]">
-                <span className="ubuntu absolute left-[10px] top-[-10px] h-[10px] bg-white px-[5px] text-[12px] font-[100]">
+              <select
+                className={`${state.gender === "" ? "text-gray-400" : ""}`}
+                name="gender"
+                value={state.gender}
+                onChange={handleChange}
+              >
+                <option value="" hidden>
                   Gender
-                </span>
-                <div className="flex items-center gap-[5px]">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="Male"
-                    checked={state.gender === "Male"}
-                    onChange={handleChange}
-                  />
-                  <label>Male</label>
-                </div>
-                <div className="flex items-center gap-[5px]">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="Female"
-                    checked={state.gender === "Female"}
-                    onChange={handleChange}
-                  />
-                  <label>Female</label>
-                </div>
-              </div>
+                </option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+
               <input
-                type="date"
+                type="text"
                 name="dob"
-                max={maxDate}
                 value={state.dob}
                 onChange={handleChange}
+                placeholder={`Date of Birth e.g ${maxDate}`}
+                onKeyDown={handleKeyPress}
               />
             </fieldset>
+
             <fieldset
               className={`flex w-full flex-col items-center gap-[10px] ${
                 currentSection === 3 ? "active block" : "hidden"
@@ -143,13 +148,17 @@ function SignUp() {
                 type="password"
                 placeholder="Enter password"
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
               />
+
               <input
                 type="password"
                 placeholder="Confirm password"
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
               />
             </fieldset>
+
             <div className="flex justify-between">
               <button
                 onClick={(e) => {
@@ -160,6 +169,7 @@ function SignUp() {
               >
                 Previous
               </button>
+
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -171,9 +181,15 @@ function SignUp() {
               </button>
             </div>
           </form>
+
+          <Link to="/login" className="text-[12px] text-green-600">
+            Already have an account? <span className="underline"> SignIn</span>
+          </Link>
         </div>
       </div>
     </div>
   );
 }
 export default SignUp;
+
+//Damdave '24
